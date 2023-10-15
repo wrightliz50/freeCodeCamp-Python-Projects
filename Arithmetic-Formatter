@@ -1,0 +1,78 @@
+# provided given array of arithmetic problems, rewrite them from 
+# horizontal to vertical  input : ['3801 - 2', '123 + 49']
+
+import re
+def arithmetic_arranger(problems, share_results='False'):
+  
+  # initialize lines to use to make answer later
+  first_line = ''
+  second_line = ''
+  third_line = ''
+  fourth_line = ''
+
+  #if there are too many problems, return an error
+  num_of_problems = len(problems)
+  if(num_of_problems > 5):
+    return 'Error: Too many problems.'
+
+  # split the problems into the first number, +/- sign, and the second number
+  for i in range(num_of_problems):
+    problems[i] = problems[i].split(' ')
+    first_num = problems[i][0]
+    second_num = problems[i][2]
+    sign = problems[i][1]
+    
+    # if doesn't include digits, return error 
+    if re.search('\D',first_num) or re.search('\D',second_num):
+      return 'Error: Numbers must only contain digits.'
+    
+    # if longer than 4 digits, return error
+    if len(first_num) > 4 or len(second_num) > 4:
+      return 'Error: Numbers cannot be more than four digits.'
+    
+    # if problems do not include + or -, return error 
+    elif not re.search('[+]|[-]',sign):
+      return "Error: Operator must be '+' or '-'."
+    
+    else:
+      #calculate the result in case you need it for the final output
+      result = str(eval(first_num+sign+second_num))
+      
+      length_difference = len(first_num) - len(second_num)
+      #if the 1st operand is longer than the 2nd, add spaces to the 2nd operand
+      if(length_difference > 0):
+        spaces = ' ' * length_difference
+        second_num = spaces + second_num
+    
+      # if the 2nd operand is longer than the 1st, add spaces to the 1st operand
+      if(length_difference < 0):
+        spaces = ' ' * -length_difference
+        first_num = spaces + first_num
+        
+      # format numbers and create lines for output
+      first_num = '  ' + first_num
+      second_num = sign + ' ' + second_num
+      line_num = '-' * len(first_num)
+      third_line += line_num
+      spaces = ' ' * (len(line_num) - len(result) )
+      fourth_line = fourth_line + spaces + result
+      
+    # add numbers with spaces and sign to lines and 4 spaces if not last problem
+    if i < num_of_problems - 1:
+      first_line += first_num + '    '
+      second_line += second_num + '    '
+      third_line = third_line + '    '
+      fourth_line = fourth_line + '    '
+    # add line break at end of final problem lines
+    else:
+      first_line += first_num + '\n'
+      second_line += second_num + '\n'
+
+  # finalize output
+  arranged_problems = first_line+ second_line + third_line
+
+  # if second arg is true, share solution to the problem
+  if share_results == True:
+    arranged_problems += '\n' + fourth_line
+  
+  return arranged_problems
