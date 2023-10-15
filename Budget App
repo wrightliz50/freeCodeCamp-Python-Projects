@@ -1,0 +1,148 @@
+#Solves https://www.freecodecamp.org/learn/scientific-computing-with-python/scientific-computing-with-python-projects/budget-app
+
+class Category:
+  def __init__(self,category):
+    ledger = []
+    self.category = category
+    self.ledger = ledger
+
+  def __str__(self):
+    # add a title with the category centered with * on each side
+    category = self.category
+    title = category.center(30,"*") + '\n'
+    output = title
+
+    # add ledger information with description and amount
+    ledger = self.ledger
+    for i in ledger:
+      # truncate description to 23 char or less amount to 7 char or less
+      description = i["description"][0:23]
+      amount = str(format(i["amount"],'.2f'))[0:7]
+      ledger_line = description.ljust(23) + amount.rjust(7) + '\n'
+      output += ledger_line
+    
+    # include the total on the last line
+    total = 'Total: ' + str(self.get_balance())
+    output += total
+    return output
+
+  # get category name
+  def get_category(self):
+    return self.category
+  
+  # get ledger 
+  def get_ledger(self):
+    return self.ledger
+  
+  # add a deposit to the ledger with amount and description
+  def deposit(self, amount, description=''):
+    ledger = self.ledger
+    ledger.append({"amount": amount, "description": description})
+
+  # add a withdraw to the ledger if it does not exceed the balance
+  def withdraw(self, amount, description=''):
+    can_withdraw = self.check_funds(amount)
+    if can_withdraw:
+      ledger = self.ledger
+      ledger.append({"amount": -amount, "description": description})
+      return True
+    else:
+      return False
+      
+  # find the balance based on the ledger by summing deposits/withdraws
+  def get_balance(self):
+    ledger = self.ledger
+    balance = 0
+    for i in ledger:
+      amount = i["amount"]
+      balance += amount
+    return balance
+
+  # transfer - move funds from this category to a given category
+  def transfer(self, amount, category):
+    to_category = category
+    from_category = self
+    
+    # if sufficient funds, return true, complete transfer
+    if from_category.withdraw(amount,'Transfer to ' + to_category.get_category()):
+      to_category.deposit(amount, 'Transfer from ' + from_category.get_category())
+      return True
+    # if insufficient funds, return false, no transfer happened
+    return False
+      
+  # check if sufficient funds, return false if amount given > balance
+  def check_funds(self, amount):
+    return amount <= self.get_balance()
+
+# calculate the spend (withdraw amount) in a category
+def get_category_spend(category):
+  ledger = category.get_ledger()
+  spent = 0
+  for i in ledger:
+    if i["amount"] < 0:
+      spent += i["amount"] * -1
+  return spent
+
+def get_longest_name(categories):
+  longest_name = 0
+  for i in categories:
+    if len(i.get_category()) > longest_name:
+      longest_name = len(i.get_category())
+  return longest_name
+
+# calculate the percent withdraw spent and chart it
+def create_spend_chart(categories):
+  # find the spend per category, total it up
+  category_spend = []
+  total_spend = 0
+  
+  for i in categories:
+    spend = get_category_spend(i)
+    category_spend.append({"name":i.get_category(),"withdraw_percent":spend})
+    total_spend += spend
+
+  # calculate the percent spend for each category
+  for j in category_spend:
+    j["withdraw_percent"] = round((j["withdraw_percent"]/total_spend)*100)
+
+  # create title for chart
+  title = 'Percentage spent by category\n'
+  chart = title
+
+  # create bar chart and add o for category percent spent
+  percent_line = 100
+  while percent_line >=0:
+    if percent_line == 100:
+      bar_chart_text = str(percent_line)+'|'
+    elif percent_line == 0:
+      bar_chart_text = '  ' + str(percent_line) + '|'
+    else:
+      bar_chart_text = ' ' + str(percent_line) + '|'
+    for j in range(len(category_spend)):
+      if category_spend[j]["withdraw_percent"] >= percent_line:
+        bar_chart_text +=' o '
+      else:
+        bar_chart_text += '   '
+    chart += bar_chart_text + ' \n'
+    percent_line -= 10
+
+  # add horizontal line to bar chart
+  chart += '    ' + '-'*len(category_spend)*3 + '-\n' 
+
+  # label bar chart with category name vertically
+  longest_cat_name = get_longest_name(categories)
+  index = 0
+  while index <= longest_cat_name:
+    new_line = '    '
+    for i in range(len(category_spend)):
+      if len(category_spend[i]["name"]) > index:
+         new_line += ' ' + category_spend[i]["name"][index] + ' '
+      else:
+        new_line += '   '
+    if index < longest_cat_name - 1:
+      chart += new_line + ' \n'
+    elif index == longest_cat_name - 1:
+      chart += new_line +' '
+    index +=1
+
+  return chart
