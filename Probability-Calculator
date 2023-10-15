@@ -1,0 +1,60 @@
+#Solves https://www.freecodecamp.org/learn/scientific-computing-with-python/scientific-computing-with-python-projects/probability-calculator
+# Creates a probability calculator that checks probability of drawing a ball out of a hat by performing a large number of hat draws
+
+import copy
+import random
+
+class Hat():
+  # inititiate class with variable amount of args and create list of contents
+  def __init__(self, **kwargs):
+    self.kwargs = kwargs
+    contents = [] 
+    for key in kwargs:
+      for num in range(kwargs[key]):
+        contents.append(key)
+    self.contents = contents
+
+  # get the contents
+  def get_contents(self):
+    return self.contents
+  
+  # draw balls out of the hat randomly 
+  def draw(self, num_balls):
+    balls_drawn = []
+    contents = self.get_contents()
+    # if asked to draw more balls than contents, return all balls
+    if num_balls > len(contents):
+      return contents
+    #add balls drawn to drawn list and update contents to no longer include drawn balls
+    while num_balls > 0:
+      ball = contents.pop(random.randint(0,len(contents)-1))
+      balls_drawn.append(ball)
+      num_balls -= 1
+    # return the drawn balls as a list
+    return balls_drawn
+
+def experiment(hat, expected_balls, num_balls_drawn, num_experiments):
+  experiment_pass = 0
+  all_hats = []
+  
+  #create num_experiments hats by deep copying hat and run experiments
+  for i in range(num_experiments):
+    all_hats.append(copy.deepcopy(hat))
+    
+    # draw balls out of hat
+    drawn_balls = all_hats[i].draw(num_balls_drawn)
+    
+    # compare expected_balls to the drawn balls
+    test_passes = []
+    for key, value in expected_balls.items():
+      color_count = drawn_balls.count(key)
+      if(color_count >= value):
+        test_passes.append(True)
+      else:
+        test_passes.append(False)
+    # add passed test to experiment pass count 
+    if not test_passes.count(False) > 0:
+      experiment_pass += 1
+  
+  # return probability - how many times expected happens and divide by num_experiments
+  return experiment_pass/num_experiments
