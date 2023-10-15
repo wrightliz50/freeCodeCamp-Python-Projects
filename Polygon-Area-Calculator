@@ -1,0 +1,87 @@
+class Rectangle:
+  def __init__(self,width,height):
+    self.width = width
+    self.height = height
+
+  # represent string of rectangle as width=w and height=h
+  def __str__(self):
+    return f"Rectangle(width={self.width}, height={self.height})"
+  
+  # set the width of the rectangle
+  def set_width(self,w):
+    self.width = w
+  
+  # set the height of the rectangle
+  def set_height(self,h):
+    self.height = h
+  
+  # get the width of the rectangle
+  def get_width(self):
+    return self.width
+  
+  # get the height of the rectangle
+  def get_height(self):
+    return self.height
+
+  # method to get the area of the rectangle
+  def get_area(self):
+    return self.width * self.height
+
+  # method to get the perimeter of the rectangle
+  def get_perimeter(self):
+    return (2 * self.width) + (2 * self.height)
+
+  # method to get the diagonal of the rectangle
+  def get_diagonal(self):
+    return ((self.width ** 2) + (self.height ** 2)) ** .5
+
+  # method that returns a picture of the rectangle with *
+  def get_picture(self):
+    # do not print if larger than 50
+    if self.width > 50 or self.height > 50:
+      return "Too big for picture."
+    num_stars = "*" * self.width
+    num_lines = self.height
+    line = num_stars + '\n'
+    picture = line * num_lines
+    return picture
+  
+  def get_amount_inside(self,shape):
+    # get this shape and other shape dimensions
+    this_width = self.get_width()
+    this_height = self.get_height()
+    other_width = shape.get_width()
+    other_height = shape.get_height()
+
+    # return 0 if the other shape is larger than this shape
+    if this_width < other_width or this_height < other_height:
+      return 0
+    else:
+      # round down the # of times the new shape fits each dimension
+      width_fits = int(this_width / other_width)
+      height_fits = int(this_height / other_height)
+      return width_fits * height_fits
+
+class Square(Rectangle):
+  def __init__(self, length):
+    self.width = length
+    self.height = length
+  
+  # represent string of square as side=w 
+  def __str__(self):
+    return f"Square(side={self.width})"
+
+  # set the width and height of the square to same value
+  def set_width(self,w):
+    self.width = w
+    self.height = w
+
+  # set the height and width of the square to same value
+  def set_height(self,h):
+    self.width = h
+    self.height = h
+  
+  # set the sides of the square
+  def set_side(self, s):
+    self.width = s
+    self.height = s
