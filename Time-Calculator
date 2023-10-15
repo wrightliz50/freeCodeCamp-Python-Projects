@@ -1,0 +1,129 @@
+# Solves https://www.freecodecamp.org/learn/scientific-computing-with-python/scientific-computing-with-python-projects/time-calculator
+
+def add_time(start, duration, weekday='null'):
+  print(start + ' ' + duration + ' ' + weekday)
+  new_time = ''
+  time_arr = []
+  
+  
+  # get the hour, minute, am/pm, and weekday as a variable for start/duration
+  start_hour = int(start.split(':')[0])
+  start_minute = int(start.split(':')[1].split(' ')[0])
+  start_ampm = start.split(' ')[1]
+
+  duration_hour = int(duration.split(':')[0])
+  duration_minute = int(duration.split(':')[1])
+
+  # add 12 hours to start hour if it's the afternoon
+  if start_ampm == 'PM':
+    start_hour += 12
+
+  # add duration minutes/hours to start minutes/hours
+  new_minute = start_minute + duration_minute
+  new_hour = start_hour + duration_hour
+  new_ampm = 'AM'
+
+  #add an hour if minutes go over 60 and reduce minutes by 60
+  if new_minute > 60:
+    new_hour += 1
+    new_minute -= 60
+
+  #add a 0 to 1 digit minutes
+  new_minute = str(new_minute) 
+  if len(str(new_minute)) == 1:
+    new_minute = '0' + new_minute
+
+  #add days if over 48 hours added and change am to pm if needed
+  if new_hour >= 48:
+    days = int(new_hour/24)
+    new_hour -= days*24
+    new_ampm = change_ampm(new_hour,new_ampm)
+    new_hour = change_hours(new_hour)
+   #add time elements to time array
+    append_to_arr(time_arr,str(new_hour),new_minute,new_ampm)
+    time_arr.append(' ('+str(days)+' days later)')
+     #update the weekday to x days later
+    if weekday != 'null':
+      weekday = find_weekday(weekday,days)
+      time_arr.insert(3, ', ' + weekday.capitalize())
+    print(time_arr)
+
+  #add next day if over 24 hours added and change am to pm if needed
+  elif new_hour > 24:
+    days = ' (next day)'
+    new_hour -= 24
+    new_ampm = change_ampm(new_hour,new_ampm)
+    new_hour = change_hours(new_hour)
+    #add time elements to time array
+    append_to_arr(time_arr,str(new_hour),new_minute,new_ampm)
+    time_arr.append(days)
+    #update the weekday to the next day
+    if weekday != 'null':
+      weekday = find_weekday(weekday,1)
+      time_arr.insert(3, ', ' + weekday.capitalize())
+    print(time_arr)
+
+  #add new hours and change to pm if needed
+  else:
+    new_hour = new_hour
+    new_ampm = change_ampm(new_hour,new_ampm)
+    new_hour = change_hours(new_hour)
+    append_to_arr(time_arr,str(new_hour),new_minute,new_ampm)
+    # add weekday if it was included
+    if weekday != 'null':
+      weekday = weekday.capitalize()
+      time_arr.append(', ' + weekday)
+    print(time_arr)
+
+  for i in time_arr:
+    new_time += i
+    
+  print(new_time)
+  return new_time
+
+# function to add time elements to time array
+def append_to_arr(arr,hour,minute,ampm):
+  arr.append(str(hour) + ':')
+  arr.append(minute + ' ')
+  arr.append(ampm)
+  return arr
+  
+# function to change to PM after noon and to AM at midnight
+def change_ampm(hours, ampm):
+  if hours >= 12:
+    ampm = 'PM'
+  elif hours == 0:
+    ampm = 'AM'
+  else:
+    ampm = 'AM'
+  return ampm
+
+# function to update hours for afternoon and midnight
+def change_hours(hours):
+  if hours > 12:
+    hours -= 12
+  elif hours == 0:
+    hours ='12'
+  else:
+    hours = hours
+  return hours
+
+#function to find the day of the week when it is added
+def find_weekday(weekday,days):
+  weekdays = {
+    'sunday': 0, 
+    'monday': 1, 
+    'tuesday': 2, 
+    'wednesday':3,
+    'thursday':4,
+    'friday': 5,
+    'saturday':6
+  }
+  start_weekday = weekdays[weekday.lower()]
+  end_weekday = start_weekday + days%7
+  if end_weekday >= 7:
+    end_weekday -= 7
+  for key,value in weekdays.items():
+    if end_weekday == value:
+      end_weekday = key
+      return end_weekday
